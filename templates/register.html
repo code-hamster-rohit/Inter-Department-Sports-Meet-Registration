@@ -737,7 +737,7 @@
             <span style="font-weight: 600; color: #000000; margin-left: 6px; font-size: 0.88rem;">{{ selected_sport.gender_rule_desc }}</span>
           </div>
           <div class="gender-live-counter" style="font-weight: 800; color: #000000; font-size: 0.88rem;">
-            Squad Gender: 2 Boys & 2 Girls Required
+            Squad Gender: {{ selected_sport.gender_spec }} Required
           </div>
         </div>
         {% endif %}
@@ -1184,8 +1184,8 @@
             </select>
             {% else %}
             <select name="main_player_{{ i }}_gender" class="input-box gender-select" required>
-              <option value="Boy" {{ 'selected' if i == 1 and selected_sport.id == 'badminton_mix' else ('selected' if i == 1 and selected_sport.id == 'carrom_mix' else '') }}>👦 Boy</option>
-              <option value="Girl" {{ 'selected' if i >= 2 and selected_sport.id == 'badminton_mix' else ('selected' if i == 2 and selected_sport.id == 'carrom_mix' else '') }}>👧 Girl</option>
+              <option value="Boy" {{ 'selected' if (i == 1 and selected_sport.id == 'badminton_mix') else '' }}>👦 Boy</option>
+              <option value="Girl" {{ 'selected' if (i >= 2 and selected_sport.id == 'badminton_mix') or (i == 1 and selected_sport.id == 'carrom_mix') else '' }}>👧 Girl</option>
             </select>
             {% endif %}
           </div>
@@ -1239,9 +1239,9 @@
               <option value="Girl" selected>👧 Girl (Fixed)</option>
             </select>
             {% else %}
-            <select name="sub_player_{{ j }}_gender" class="input-box">
-              <option value="Boy">👦 Boy</option>
-              <option value="Girl">👧 Girl</option>
+            <select name="sub_player_{{ j }}_gender" class="input-box sub-gender-select">
+              <option value="Boy" {{ 'selected' if j == 1 else '' }}>👦 Boy</option>
+              <option value="Girl" {{ 'selected' if j == 2 else '' }}>👧 Girl</option>
             </select>
             {% endif %}
           </div>
@@ -1287,9 +1287,29 @@
         if (sel.value === 'Girl') girls++;
       });
 
+      const sportId = '{{ selected_sport_id }}';
+      let isValid = true;
+      let targetDesc = '';
+
+      if (sportId === 'carrom_mix') {
+        isValid = (boys === 1 && girls === 1);
+        targetDesc = 'Required: Exactly 1 Boy & 1 Girl';
+      } else if (sportId === 'badminton_mix') {
+        isValid = (boys === 2 && girls === 2);
+        targetDesc = 'Required: Exactly 2 Boys & 2 Girls';
+      }
+
       const counters = document.querySelectorAll('.gender-live-counter');
       counters.forEach(cnt => {
-        cnt.innerHTML = `Current Squad: <span style="font-weight: 800; text-decoration: underline;">${boys} Boy${boys !== 1 ? 's' : ''}</span>, <span style="font-weight: 800; text-decoration: underline;">${girls} Girl${girls !== 1 ? 's' : ''}</span>`;
+        if (targetDesc) {
+          if (isValid) {
+            cnt.innerHTML = `Playing Squad: <strong>${boys} Boy, ${girls} Girl</strong> <span style="background: #000000; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; margin-left: 6px;">✓ Valid Balance</span>`;
+          } else {
+            cnt.innerHTML = `Playing Squad: <strong>${boys} Boy${boys !== 1 ? 's' : ''}, ${girls} Girl${girls !== 1 ? 's' : ''}</strong> <span style="background: #f4f4f5; color: #000000; border: 1px solid #000000; padding: 2px 8px; border-radius: 4px; font-size: 0.78rem; margin-left: 6px;">⚠️ ${targetDesc}</span>`;
+          }
+        } else {
+          cnt.innerHTML = `Current Squad: <strong>${boys} Boy${boys !== 1 ? 's' : ''}, ${girls} Girl${girls !== 1 ? 's' : ''}</strong>`;
+        }
       });
     }
 
@@ -1299,10 +1319,56 @@
         sel.addEventListener('change', updateMixedGenderCounter);
       });
 
-      // Prevent accidental double submission
+      // Strict client-side validation & prevent double submission
       document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', function(e) {
-          if (e.defaultPrevented) return;
+          const sportId = '{{ selected_sport_id }}';
+          const selects = this.querySelectorAll('.gender-select');
+          if (selects.length > 0) {
+            let boys = 0;
+            let girls = 0;
+            selects.forEach(sel => {
+              if (sel.value === 'Boy') boys++;
+              if (sel.value === 'Girl') girls++;
+            });
+
+            if (sportId === 'carrom_mix' && (boys !== 1 || girls !== 1)) {
+              e.preventDefault();
+              alert(`⚠️ Carrom (mix) Rule: Playing squad must contain exactly 1 Boy and 1 Girl.\nCurrently selected: ${boys} Boy(s) and ${girls} Girl(s).`);
+              return false;
+            }
+
+            if (sportId === 'badminton_mix' && (boys !== 2 || girls !== 2)) {
+              e.preventDefault();
+              alert(`⚠️ Badminton (mix) Rule: Playing squad must contain exactly 2 Boys and 2 Girls.\nCurrently selected: ${boys} Boy(s) and ${girls} Girl(s).`);
+              return false;
+            }
+          }
+
+          // Check substitutes for carrom_mix (max 1 Boy, max 1 Girl)
+          if (sportId === 'carrom_mix') {
+            let subBoys = 0;
+            let subGirls = 0;
+            for (let j = 1; j <= 2; j++) {
+              const nameInput = this.querySelector(`input[name="sub_player_${j}_name"]`);
+              const genderSel = this.querySelector(`select[name="sub_player_${j}_gender"]`);
+              if (nameInput && nameInput.value.trim() && genderSel) {
+                if (genderSel.value === 'Boy') subBoys++;
+                if (genderSel.value === 'Girl') subGirls++;
+              }
+            }
+            if (subBoys > 1) {
+              e.preventDefault();
+              alert(`⚠️ Carrom (mix) Substitute Rule: At most 1 Boy substitute can be added (found: ${subBoys} Boys).`);
+              return false;
+            }
+            if (subGirls > 1) {
+              e.preventDefault();
+              alert(`⚠️ Carrom (mix) Substitute Rule: At most 1 Girl substitute can be added (found: ${subGirls} Girls).`);
+              return false;
+            }
+          }
+
           const btn = this.querySelector('button[type="submit"]');
           if (btn) {
             btn.innerHTML = '⏳ Submitting...';

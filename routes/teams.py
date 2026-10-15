@@ -135,15 +135,15 @@ SPORTS_CONFIG: dict[str, dict[str, Any]] = {
         "name": "Carrom (mix)",
         "category": "Mixed",
         "icon": "🎯",
-        "main_count": 3,
-        "sub_max": 0,
-        "formula": "b2,g1",
-        "squad_notation": "3 Playing (1 Captain + 2 Main: exactly 2 Boys & 1 Girl) • No Substitutes",
-        "squad_badge": "3 Playing (2B + 1G) • 0 Subs",
-        "gender_badge": "👫 Mixed: Exactly 2 Boys & 1 Girl (No Subs)",
-        "gender_rule_desc": "The 3 playing squad members (Captain + Main squad) MUST include exactly 2 Boys and 1 Girl. No substitutes are allowed.",
-        "description": "3 Playing Players (1 Captain + 2 Main: exactly 2 Boys and 1 Girl). No substitutes permitted. Total squad: exactly 3 Athletes.",
-        "gender_spec": "2 Boys, 1 Girl",
+        "main_count": 2,
+        "sub_max": 2,
+        "formula": "b1,g1 + up to 2 (max 1B, 1G)",
+        "squad_notation": "2 Playing (1 Captain + 1 Main: exactly 1 Boy & 1 Girl) + up to 2 Substitutes (at most 1 Boy & 1 Girl)",
+        "squad_badge": "2 Playing (1B + 1G) + up to 2 Subs",
+        "gender_badge": "👫 Mixed: 1 Boy & 1 Girl Playing (Subs: max 1B, 1G)",
+        "gender_rule_desc": "The 2 playing squad members (Captain + 1 Main player) MUST include exactly 1 Boy and 1 Girl. Up to 2 substitutes are allowed (at most 1 Boy and at most 1 Girl).",
+        "description": "2 Playing Players (1 Captain + 1 Main: exactly 1 Boy and 1 Girl) + up to 2 Substitutes on bench (at most 1 Boy and at most 1 Girl). Total squad: 2 to 4 Athletes.",
+        "gender_spec": "1 Boy & 1 Girl Playing (Subs: max 1B, 1G)",
         "default_gender": "Boy",
     },
     "tow_boys": {
@@ -225,7 +225,7 @@ ERRORS: dict[str, str] = {
     "gender_rule_boys": "⚠️ Strict Gender Rule: Only male athletes ('Boy') can be registered for this sport.",
     "gender_rule_girls": "⚠️ Strict Gender Rule: Only female athletes ('Girl') can be registered for this sport.",
     "gender_rule_badminton": "⚠️ Mixed Event Rule: Badminton (mix) playing squad must contain exactly 2 Boys and 2 Girls.",
-    "gender_rule_carrom": "⚠️ Mixed Event Rule: Carrom (mix) playing squad must contain exactly 2 Boys and 1 Girl (No substitutes).",
+    "gender_rule_carrom": "⚠️ Mixed Event Rule: Carrom (mix) playing squad must contain exactly 1 Boy and 1 Girl (Substitutes: at most 1 Boy and 1 Girl).",
     "no_subs_allowed": "⚠️ Substitutes are not permitted for this sport.",
     "unauthorized": "You are only permitted to edit or delete registrations created by yourself.",
     "db_error": "Database operation failed. Please check network connection.",
@@ -468,12 +468,18 @@ def validate_team_roster(
             return None, None, None, f"Badminton (mix) squad rule violation: The 4 playing athletes (Captain + Main squad) must include exactly 2 Boys and 2 Girls (found: {boys_count} Boys, {girls_count} Girls)."
 
     elif sport_id == "carrom_mix":
-        if len(substitutes) > 0:
-            return None, None, None, "Carrom (mix) does not allow any substitutes."
         boys_count = sum(1 for p in playing_squad if p["gender"] == "Boy")
         girls_count = sum(1 for p in playing_squad if p["gender"] == "Girl")
-        if boys_count != 2 or girls_count != 1:
-            return None, None, None, f"Carrom (mix) squad rule violation: The 3 playing athletes (Captain + Main squad) must include exactly 2 Boys and 1 Girl (found: {boys_count} Boys, {girls_count} Girls)."
+        if boys_count != 1 or girls_count != 1:
+            return None, None, None, f"Carrom (mix) squad rule violation: The 2 playing athletes (Captain + 1 Main Player) must include exactly 1 Boy and 1 Girl (found: {boys_count} Boy{'s' if boys_count != 1 else ''}, {girls_count} Girl{'s' if girls_count != 1 else ''})."
+
+        # Check substitutes: up to 2 substitutes, at most 1 boy and at most 1 girl
+        sub_boys = sum(1 for s in substitutes if s["gender"] == "Boy")
+        sub_girls = sum(1 for s in substitutes if s["gender"] == "Girl")
+        if sub_boys > 1:
+            return None, None, None, f"Carrom (mix) substitute rule violation: At most 1 Boy substitute is permitted (found: {sub_boys} Boys)."
+        if sub_girls > 1:
+            return None, None, None, f"Carrom (mix) substitute rule violation: At most 1 Girl substitute is permitted (found: {sub_girls} Girls)."
 
     # 5. Internal Duplicate Athlete Check
     all_athletes = [captain] + main_players + substitutes
