@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Inter-Dept Sports Meet - IIT Roorkee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .dashboard-shell {
+      width: 100%;
+      max-width: 980px;
+      margin: 40px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .user-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .info-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .info-val {
+      font-size: 0.95rem;
+      color: #fff;
+      font-weight: 600;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: rgba(17, 24, 39, 0.6);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .stat-val {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .teams-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+    .my-team-card {
+      background: rgba(17, 24, 39, 0.7);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      transition: transform 0.2s;
+    }
+    .my-team-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(6, 182, 212, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow">
+    <div class="glow-orb-1"></div>
+    <div class="glow-orb-2"></div>
+  </div>
+  <div class="grid-overlay"></div>
+
+  <div class="dashboard-shell">
+    <!-- Verified Athlete Profile Card -->
+    <div class="user-card" style="flex-direction: column; align-items: stretch; margin-bottom: 24px;">
+      <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+        {% if user.picture %}
+        <img src="{{ user.picture }}" alt="{{ user.name }}" class="avatar">
+        {% else %}
+        <div class="avatar">{{ user.name[0] if user.name else 'U' }}</div>
+        {% endif %}
+
+        <div class="user-meta" style="flex: 1;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+            <h2>{{ user.name }}</h2>
+            <span class="verified-tag">
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+              </svg>
+              Verified IITR Athlete
+            </span>
+          </div>
+          <div class="user-email">
+            <span>{{ user.email }}</span>
+            <span style="opacity: 0.4;">•</span>
+            <span style="color: var(--accent-amber); font-weight: 600;">Department: {{ user.department or 'IITR' }}</span>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <a href="/register" class="btn-dev" style="background: rgba(6, 182, 212, 0.25); text-decoration: none; padding: 10px 18px; font-weight: 700;">
+            + Register Team
+          </a>
+          <a href="/logout" class="btn-logout" id="logout-btn">
+            Log Out
+          </a>
+        </div>
+      </div>
+
+      <!-- Athlete & Department Details -->
+      <div class="user-info-grid">
+        <div class="info-item">
+          <span class="info-label">Full Name</span>
+          <span class="info-val">{{ user.name }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Institute Email</span>
+          <span class="info-val" style="color: #38bdf8;">{{ user.email }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Department</span>
+          <span class="info-val" style="color: var(--accent-amber);">{{ user.department or 'IITR' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Teams Formed</span>
+          <span class="info-val" style="color: var(--accent-cyan);">{{ my_teams|length if my_teams else 0 }} Sport(s)</span>
+        </div>
+      </div>
+    </div>
+
+    {% if db_error %}
+    <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 16px; padding: 18px 22px; margin-bottom: 24px;">
+      <div style="display: flex; align-items: flex-start; gap: 14px;">
+        <span style="font-size: 1.6rem; line-height: 1;">⚠️</span>
+        <div style="flex: 1;">
+          <div style="font-weight: 700; color: #f87171; font-size: 1rem; margin-bottom: 6px;">
+            MongoDB Atlas Network Access Required
+          </div>
+          <p style="font-size: 0.88rem; color: #fca5a5; line-height: 1.5; margin: 0 0 10px 0;">
+            {{ db_error }}
+          </p>
+          <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px 14px; font-size: 0.84rem; color: #e2e8f0; line-height: 1.6;">
+            <strong>How to fix:</strong><br>
+            1. Open <a href="https://cloud.mongodb.com" target="_blank" style="color: #38bdf8; text-decoration: underline;">cloud.mongodb.com</a> and log in.<br>
+            2. Go to <strong>Security</strong> &rarr; <strong>Network Access</strong>.<br>
+            3. Click <strong>Add IP Address</strong> and select <strong>Allow Access From Anywhere (0.0.0.0/0)</strong> or add your current IP (<code>103.37.201.131</code>).<br>
+            4. Click <strong>Confirm</strong>, wait ~1 minute for Atlas to update, then refresh this page.
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--accent-cyan);">12</div>
+        <div class="stat-label">Sports Events Available</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--accent-amber);">{{ my_teams|length if my_teams else 0 }}</div>
+        <div class="stat-label">My Formed Teams</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: var(--accent-emerald);">Active</div>
+        <div class="stat-label">Championship Registration</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color: #f43f5e;">Oct 18-24</div>
+        <div class="stat-label">Meet Dates 2026</div>
+      </div>
+    </div>
+
+    <!-- My Registered Teams Section -->
+    <div style="margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="font-family: var(--font-heading); font-size: 1.35rem; color: #fff;">
+          My Formed Teams
+        </h3>
+        <div>
+          <a href="/teams" style="color: var(--accent-cyan); font-size: 0.88rem; text-decoration: none; font-weight: 600;">
+            View All Department Teams →
+          </a>
+        </div>
+      </div>
+
+      {% if my_teams and my_teams|length > 0 %}
+      <div class="teams-grid">
+        {% for t in my_teams %}
+        <div class="my-team-card">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span class="brand-badge" style="margin-bottom: 0; padding: 3px 8px; font-size: 0.72rem;">
+                {{ t.sport_name }}
+              </span>
+              <span style="font-size: 0.75rem; color: var(--accent-amber); font-weight: 700;">
+                {{ t.total_strength }} Squad
+              </span>
+            </div>
+            <h4 style="font-family: var(--font-heading); font-size: 1.2rem; color: #fff; margin-top: 4px;">
+              {{ t.team_name }}
+            </h4>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+              Captain: <strong>{{ t.captain.name }}</strong> (You)
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 8px; border-top: 1px solid var(--border-subtle); padding-top: 12px;">
+            <a href="/teams/{{ t._id }}" class="btn-dev" style="text-decoration: none; text-align: center; font-size: 0.8rem; padding: 7px 12px; flex: 1;">
+              View Roster
+            </a>
+            <a href="/teams/{{ t._id }}/edit" class="btn-dev" style="text-decoration: none; text-align: center; font-size: 0.8rem; padding: 7px 12px; background: rgba(245, 158, 11, 0.15); color: #fde68a; border-color: rgba(245, 158, 11, 0.3);">
+              Edit
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div style="padding: 28px; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-subtle); border-radius: 16px; text-align: center; margin-bottom: 30px;">
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 14px;">
+          You haven't formed any sports team yet. Each department can enter teams across all 12 events.
+        </p>
+        <a href="/register" class="btn-submit-team" style="display: inline-block; text-decoration: none; padding: 10px 22px; font-size: 0.9rem;">
+          + Register Your First Team Now
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Sports Meet Fixtures Section -->
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-family: var(--font-heading); font-size: 1.3rem;">Tournament Events Overview</h3>
+      <span style="font-size: 0.85rem; color: var(--accent-cyan);">Inter-Dept Meet 2026</span>
+    </div>
+
+    <div class="events-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+      <div class="event-card" style="background: rgba(17, 24, 39, 0.6); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 20px;">
+        <div style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: #fff;">🏏 Cricket (Boys)</div>
+        <div style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 600; margin: 4px 0 8px 0;">11 Main + 4 Substitutes</div>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          Full pitch T-10 tournament. Main Pavilion Ground.
+        </p>
+      </div>
+
+      <div class="event-card" style="background: rgba(17, 24, 39, 0.6); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 20px;">
+        <div style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: #fff;">⚽ Football (Boys & Girls)</div>
+        <div style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 600; margin: 4px 0 8px 0;">Boys: 7+5 • Girls: 3+2</div>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          Inter-department league and knockout brackets.
+        </p>
+      </div>
+
+      <div class="event-card" style="background: rgba(17, 24, 39, 0.6); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 20px;">
+        <div style="font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; color: #fff;">🏸 Badminton & Carrom (Mixed)</div>
+        <div style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 600; margin: 4px 0 8px 0;">Badminton: b2,g2+1 • Carrom: b2,g1</div>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          Mixed department squad championship.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

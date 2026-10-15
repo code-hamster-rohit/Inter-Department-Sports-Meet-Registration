@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ team.team_name }} | Inter-Dept Sports Meet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .team-container {
+      width: 100%;
+      max-width: 960px;
+      margin: 40px auto 60px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .team-header-card {
+      background: var(--bg-surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .roster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .player-card {
+      background: rgba(17, 24, 39, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .player-card.captain-card {
+      border-color: rgba(6, 182, 212, 0.4);
+      background: rgba(6, 182, 212, 0.08);
+    }
+    .player-card.sub-card {
+      border-style: dashed;
+      opacity: 0.9;
+    }
+    .player-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .player-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .role-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+    }
+    .role-captain {
+      background: rgba(6, 182, 212, 0.2);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+    }
+    .role-main {
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+    }
+    .role-sub {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fde68a;
+    }
+    .actions-group {
+      display: flex;
+      gap: 12px;
+    }
+    .btn-edit {
+      padding: 10px 18px;
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .btn-edit:hover { background: rgba(6, 182, 212, 0.25); }
+    .btn-delete {
+      padding: 10px 18px;
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .btn-delete:hover {
+      background: rgba(239, 68, 68, 0.25);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow">
+    <div class="glow-orb-1"></div>
+    <div class="glow-orb-2"></div>
+  </div>
+  <div class="grid-overlay"></div>
+
+  <div class="team-container">
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+      <a href="/dashboard" class="btn-back">← Back to Dashboard</a>
+      <a href="/teams" class="btn-back" style="color: var(--accent-cyan);">View All Department Teams →</a>
+    </div>
+
+    <!-- Team Header -->
+    <div class="team-header-card">
+      <div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+          <span class="brand-badge" style="margin-bottom: 0;">{{ team.department }} Department</span>
+          <span class="verified-tag">Registered Team</span>
+        </div>
+        <h1 style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; color: #fff;">
+          {{ team.team_name }}
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">
+          {{ team.sport_name }} • {{ team.category }} Category • Total Squad Strength: {{ team.total_strength }}
+        </p>
+      </div>
+
+      {% if is_creator %}
+      <div class="actions-group">
+        <a href="/teams/{{ team._id }}/edit" class="btn-edit" id="edit-team-btn">
+          ✏️ Edit Roster
+        </a>
+        <form action="/teams/{{ team._id }}/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this team? Once deleted, you may form a new team.');" style="margin: 0;">
+          <button type="submit" class="btn-delete" id="delete-team-btn">
+            🗑️ Delete Team
+          </button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Captain Section -->
+    <div style="margin-bottom: 24px;">
+      <h3 style="font-family: var(--font-heading); font-size: 1.2rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span>👑</span> Team Captain
+      </h3>
+      <div class="player-card captain-card">
+        <div>
+          <div class="player-name">
+            {{ team.captain.name }}
+          </div>
+          <div class="player-sub">
+            {{ team.captain.email }} {% if team.captain.student_id %}• ID: {{ team.captain.student_id }}{% endif %}
+          </div>
+        </div>
+        <span class="role-badge role-captain">Captain</span>
+      </div>
+    </div>
+
+    <!-- Main Squad -->
+    <div style="margin-bottom: 24px;">
+      <h3 style="font-family: var(--font-heading); font-size: 1.2rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span>⚔️</span> Main Playing Squad ({{ team.main_players|length }} Players)
+      </h3>
+      <div class="roster-grid">
+        {% for p in team.main_players %}
+        <div class="player-card">
+          <div>
+            <div class="player-name">{{ loop.index }}. {{ p.name }}</div>
+            <div class="player-sub">
+              {{ p.email or 'Registered Player' }} {% if p.student_id %}• ID: {{ p.student_id }}{% endif %}
+            </div>
+          </div>
+          <span class="role-badge role-main">Main</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Substitutes Squad -->
+    {% if team.substitutes and team.substitutes|length > 0 %}
+    <div style="margin-bottom: 30px;">
+      <h3 style="font-family: var(--font-heading); font-size: 1.2rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span>🛡️</span> Bench Substitutes ({{ team.substitutes|length }} Players)
+      </h3>
+      <div class="roster-grid">
+        {% for s in team.substitutes %}
+        <div class="player-card sub-card">
+          <div>
+            <div class="player-name">Sub {{ loop.index }}: {{ s.name }}</div>
+            <div class="player-sub">
+              {{ s.email or 'Substitute' }} {% if s.student_id %}• ID: {{ s.student_id }}{% endif %}
+            </div>
+          </div>
+          <span class="role-badge role-sub">Substitute</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div style="padding: 20px; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-subtle); border-radius: 14px; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px;">
+      ℹ️ No substitute players registered on the bench for this team.
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>

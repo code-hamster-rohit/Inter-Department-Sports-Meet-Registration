@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Restricted | Inter-Dept Sports Meet - IIT Roorkee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .denied-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #f4f4f5;
+      border: 2px solid #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: #000000;
+    }
+
+    .rejected-info {
+      background: #fafafa;
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin: 20px 0 24px 0;
+      text-align: left;
+    }
+
+    .info-row {
+      margin-bottom: 12px;
+    }
+    .info-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .info-value {
+      font-family: monospace;
+      font-size: 0.95rem;
+      color: #000000;
+      font-weight: 700;
+      word-break: break-all;
+    }
+
+    .dept-whitelist-box {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .whitelist-chip {
+      padding: 4px 10px;
+      background: #000000;
+      border: 1px solid #000000;
+      color: #ffffff;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .btn-retry {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 14px 20px;
+      background: #000000;
+      color: #ffffff;
+      font-weight: 700;
+      text-decoration: none;
+      border-radius: 12px;
+      transition: all 0.2s;
+      border: 1px solid #000000;
+    }
+
+    .btn-retry:hover {
+      background: #27272a;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-overlay"></div>
+
+  <main class="page-container">
+    <div class="glass-card" style="border: 2px solid #000000;">
+      <div class="denied-icon">
+        <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      </div>
+
+      <h1 class="card-title" style="color: #000000;">
+        {{ error_title or "Access Restricted" }}
+      </h1>
+
+      <p class="card-subtitle">
+        {{ error_message or "Only students from participating departments are eligible to enter the Inter-Dept Sports Meet portal." }}
+      </p>
+
+      {% if rejected_email %}
+      <div class="rejected-info">
+        <div class="info-row">
+          <div class="info-label">Attempted Google Account:</div>
+          <div class="info-value">{{ rejected_email }}</div>
+        </div>
+
+        {% if detected_dept %}
+        <div class="info-row" style="margin-top: 10px;">
+          <div class="info-label">Detected Department / Role:</div>
+          <div style="font-size: 0.9rem; color: #000000; font-weight: 600;">
+            {{ detected_dept }}
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="info-row" style="margin-top: 10px;">
+          <div class="info-label">Tournament Eligibility:</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.45;">
+            {{ reason or "Only students belonging to the 3 competing departments are eligible to register. Staff accounts (@iitr.ac.in) and other departments are not permitted." }}
+          </div>
+          <div class="dept-whitelist-box">
+            <span class="whitelist-chip">AMSC</span>
+            <span class="whitelist-chip">PE</span>
+            <span class="whitelist-chip">PPE</span>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <a href="/login" class="btn-retry">
+        Try Again with Eligible Account →
+      </a>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Sports Registration & Team Management | IIT Roorkee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    /* ==========================================================================
+       PURE WHITE & BLACK DESIGN SYSTEM (THEME OVERRIDES & COMPONENT STYLES)
+       ========================================================================== */
+    .unified-container {
+      width: 100%;
+      max-width: 1060px;
+      margin: 20px auto 60px auto;
+      padding: 0 clamp(12px, 3vw, 24px);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* 1. Top Profile Banner */
+    .profile-banner {
+      background: #ffffff;
+      border: 1px solid var(--border-black);
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+    .profile-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .profile-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      border: 2px solid #000000;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .profile-meta h1 {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #000000;
+      margin-bottom: 2px;
+      line-height: 1.2;
+    }
+    .profile-sub {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+    .dept-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      background: #000000;
+      border: 1px solid #000000;
+      color: #ffffff;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.74rem;
+      letter-spacing: 0.04em;
+    }
+    .profile-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .dept-locked-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      background: #f4f4f5;
+      border: 1px solid var(--border-black);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: #000000;
+      letter-spacing: 0.02em;
+    }
+    .dept-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #000000;
+    }
+    .stat-pill {
+      background: #ffffff;
+      border: 1px solid var(--border-medium);
+      border-radius: 8px;
+      padding: 6px 12px;
+      text-align: right;
+    }
+    .stat-pill-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    .stat-pill-val {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #000000;
+    }
+    .btn-logout {
+      padding: 8px 14px;
+      background: #ffffff;
+      color: #000000;
+      border: 1px solid var(--border-black);
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+    }
+    .btn-logout:hover {
+      background: #000000;
+      color: #ffffff;
+    }
+
+    /* 2. Notifications & Alerts */
+    .msg-banner {
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      line-height: 1.45;
+    }
+    .msg-success {
+      background: #f0fdf4;
+      border: 2px solid #16a34a;
+      color: #14532d;
+      font-weight: 700;
+    }
+    .msg-error {
+      background: #fef2f2;
+      border: 2px solid #dc2626;
+      color: #7f1d1d;
+      font-weight: 700;
+    }
+
+    /* 3. Section Headline */
+    .section-headline {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #000000;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* 4. Sports Grid (12 Sports) */
+    .sports-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .sport-pill {
+      background: #ffffff;
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 14px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    .sport-pill:hover {
+      transform: translateY(-2px);
+      border-color: #000000;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+    .sport-pill.active {
+      background: #000000;
+      color: #ffffff;
+      border-color: #000000;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+    .sport-pill-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sport-pill-icon {
+      font-size: 1.4rem;
+      line-height: 1;
+    }
+    .sport-pill-formula {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: #f4f4f5;
+      color: #000000;
+      border: 1px solid var(--border-medium);
+    }
+    .sport-pill.active .sport-pill-formula {
+      background: #27272a;
+      color: #ffffff;
+      border-color: #3f3f46;
+    }
+    .sport-pill-title {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #000000;
+      margin-top: 2px;
+    }
+    .sport-pill.active .sport-pill-title {
+      color: #ffffff;
+    }
+    .sport-pill-badges {
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 1px;
+    }
+    .sport-pill.active .sport-pill-badges {
+      color: #d4d4d8;
+    }
+    .sport-pill-status {
+      font-size: 0.78rem;
+      margin-top: 2px;
+    }
+    .status-formed {
+      color: #000000;
+      font-weight: 800;
+    }
+    .sport-pill.active .status-formed {
+      color: #ffffff;
+    }
+    .status-empty {
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .sport-pill.active .status-empty {
+      color: #a1a1aa;
+    }
+
+    /* 5. Active Sport Focus Area */
+    .active-sport-card {
+      background: #ffffff;
+      border: 2px solid #000000;
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      margin-bottom: 30px;
+    }
+    .sport-banner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #000000;
+      padding-bottom: 18px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .sport-banner-title {
+      font-family: var(--font-heading);
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #000000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .sport-banner-desc {
+      color: var(--text-main);
+      font-size: 0.92rem;
+      margin-top: 6px;
+    }
+
+    /* 6. Form Section & Player Rows */
+    .form-group-title {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #000000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 24px 0 12px 0;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-medium);
+    }
+    .form-group-title:first-of-type { margin-top: 0; }
+
+    .player-row {
+      display: grid;
+      grid-template-columns: 2fr 2fr 1.5fr 1fr;
+      gap: 12px;
+      align-items: center;
+      background: #fafafa;
+      border: 1px solid var(--border-medium);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      transition: border-color 0.15s;
+    }
+    .player-row:hover {
+      border-color: #000000;
+    }
+    .player-row.captain-row {
+      background: #ffffff;
+      border: 2px solid #000000;
+    }
+    .field-tag {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #000000;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+    .input-box {
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 12px;
+      background: #ffffff;
+      border: 1px solid var(--border-medium);
+      border-radius: 8px;
+      color: #000000;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.15s;
+    }
+    .input-box:focus {
+      border-color: #000000;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 7. Action Buttons */
+    .btn-submit {
+      padding: 12px 26px;
+      background: #000000;
+      color: #ffffff;
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 800;
+      border: 1px solid #000000;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      min-height: 46px;
+    }
+    .btn-submit:hover {
+      background: #27272a;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+    .btn-secondary {
+      padding: 9px 18px;
+      background: #ffffff;
+      color: #000000;
+      border: 1px solid #000000;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+      min-height: 38px;
+    }
+    .btn-secondary:hover {
+      background: #f4f4f5;
+    }
+    .btn-danger {
+      padding: 9px 16px;
+      background: #ffffff;
+      color: #dc2626;
+      border: 1px solid #dc2626;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+      min-height: 38px;
+    }
+    .btn-danger:hover {
+      background: #dc2626;
+      color: #ffffff;
+    }
+
+    /* 8. Roster Cards & Tables (Existing Teams) */
+    .existing-team-wrapper {
+      background: #ffffff;
+      border: 1px solid var(--border-medium);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-medium);
+    }
+    .roster-card {
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .roster-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+      min-width: 460px;
+    }
+    .roster-table th {
+      background: #000000;
+      color: #ffffff;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .roster-table td {
+      padding: 11px 14px;
+      border-top: 1px solid var(--border-subtle);
+      color: #000000;
+      background: #ffffff;
+    }
+    .roster-table tr:hover td {
+      background: #fafafa;
+    }
+
+    /* 9. Mobile Responsiveness */
+    @media (max-width: 860px) {
+      .player-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .unified-container {
+        margin: 10px auto 40px auto;
+        padding: 0 12px;
+      }
+
+      .profile-banner {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px 14px;
+        gap: 14px;
+      }
+
+      .profile-left {
+        width: 100%;
+      }
+
+      .profile-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .stat-pill {
+        flex-grow: 1;
+        text-align: left;
+      }
+
+      .sports-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .sport-pill {
+        padding: 12px 10px;
+      }
+
+      .sport-banner-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+      }
+
+      .active-sport-card {
+        padding: 18px 14px;
+        border-radius: 14px;
+      }
+
+      .player-row {
+        grid-template-columns: 1fr;
+        padding: 12px 10px;
+        gap: 8px;
+      }
+
+      .submit-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+
+      .btn-submit {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+      }
+
+      .existing-team-wrapper {
+        padding: 14px 12px;
+      }
+    }
+
+    @media (max-width: 440px) {
+      .sports-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-avatar {
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+      }
+
+      .profile-meta h1 {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-overlay"></div>
+
+  <div class="unified-container">
+    
+    <!-- 1. Top Profile Bar -->
+    <div class="profile-banner">
+      <div class="profile-left">
+        <div class="profile-avatar">
+          {% if user.picture %}
+          <img src="{{ user.picture }}" alt="{{ user.name }}" referrerpolicy="no-referrer">
+          {% else %}
+          {{ user.name[0]|upper }}
+          {% endif %}
+        </div>
+        <div class="profile-meta">
+          <h1>{{ user.name }}</h1>
+          <div class="profile-sub">
+            <span style="color: #000000; font-weight: 600;">{{ user.email }}</span>
+            <span>•</span>
+            <span class="dept-badge">{{ active_dept_upper }} DEPARTMENT</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-right">
+        <!-- Exclusive Department Indicator -->
+        <div class="dept-locked-badge">
+          <span class="dept-dot"></span>
+          <span>Dept: {{ active_dept_upper }}</span>
+        </div>
+
+        <div class="stat-pill">
+          <div class="stat-pill-label">Teams in {{ active_dept_upper }}</div>
+          <div class="stat-pill-val">{{ total_dept_teams_count }} Teams</div>
+        </div>
+        <a href="/logout" class="btn-logout" id="logout-btn">Log Out</a>
+      </div>
+    </div>
+
+    <!-- Notifications & Alerts -->
+    {% if success_message %}
+    <div class="msg-banner msg-success">
+      <span>✓ {{ success_message }}</span>
+    </div>
+    {% endif %}
+
+    {% if error_message %}
+    <div class="msg-banner msg-error">
+      <span>⚠️ {{ error_message }}</span>
+    </div>
+    {% endif %}
+
+    <!-- 2. Available Sports Grid for Student's Department -->
+    <div class="section-headline">
+      <span>{{ active_dept_upper }} Sports Events</span>
+      <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: normal;">
+        Selected: <strong style="color: #000000;">{{ selected_sport.name }}</strong>
+      </span>
+    </div>
+
+    <div class="sports-grid">
+      {% for sid, sp in sports.items() %}
+      {% set is_active = (sid == selected_sport_id) %}
+      {% set sport_teams = created_teams_by_sport.get(sid, []) %}
+      {% set team_count = sport_teams|length %}
+      {% set has_my_team = (sid in user_registered_sports) %}
+      <a 
+        href="/register?sport={{ sid }}#sport-section" 
+        class="sport-pill {{ 'active' if is_active else '' }}"
+        id="sport-pill-{{ sid }}"
+      >
+        <div class="sport-pill-top">
+          <span class="sport-pill-icon">{{ sp.icon }}</span>
+          <span class="sport-pill-formula">{{ sp.squad_badge }}</span>
+        </div>
+        <div class="sport-pill-title">{{ sp.name }}</div>
+        <div class="sport-pill-badges">
+          <span>{{ sp.gender_badge }}</span>
+        </div>
+        <div class="sport-pill-status">
+          {% if has_my_team %}
+          <span class="status-formed">✓ Your Team Formed</span>
+          {% elif team_count > 0 %}
+          <span class="status-formed">✓ {{ team_count }} Team{% if team_count > 1 %}s{% endif %} (Open)</span>
+          {% else %}
+          <span class="status-empty">+ Form Team</span>
+          {% endif %}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- 3. Active Sport Section (Form / Existing Team View / Edit) -->
+    <div class="active-sport-card" id="sport-section">
+      
+      <div class="sport-banner-header">
+        <div>
+          <div class="sport-banner-title">
+            <span>{{ selected_sport.icon }}</span>
+            <span>{{ selected_sport.name }}</span>
+            <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff; background: #000000; padding: 3px 10px; border-radius: 6px;">
+              {{ active_dept_upper }} DEPARTMENT
+            </span>
+          </div>
+          <div class="sport-banner-desc">
+            📌 <strong>Squad Format:</strong> {{ selected_sport.squad_notation }}
+          </div>
+          <div style="font-size: 0.85rem; color: #000000; margin-top: 6px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="background: #f4f4f5; border: 1px solid #d4d4d8; padding: 2px 8px; border-radius: 4px;">{{ selected_sport.gender_badge }}</span>
+            <span>•</span>
+            <span>{{ selected_sport.gender_rule_desc }}</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <span class="sport-pill-formula" style="font-size: 0.85rem; padding: 6px 12px; background: #000000; color: #ffffff; font-weight: 800; border: 1px solid #000000;">
+            {{ selected_sport.main_count }} Playing {% if selected_sport.sub_max > 0 %}+ up to {{ selected_sport.sub_max }} Subs{% else %}• 0 Subs{% endif %}
+          </span>
+          <span style="font-size: 0.84rem; font-weight: 800; color: #000000; background: #f4f4f5; border: 1px solid var(--border-medium); padding: 6px 12px; border-radius: 6px;">
+            {{ existing_teams|length }} Team{% if existing_teams|length != 1 %}s{% endif %} Registered
+          </span>
+        </div>
+      </div>
+
+      <!-- MODE 1: Edit Mode for a Specific Team -->
+      {% if is_editing and editing_team %}
+      <form action="/register/edit" method="POST" id="edit-team-form">
+        <input type="hidden" name="sport_id" value="{{ selected_sport_id }}">
+        <input type="hidden" name="team_id" value="{{ editing_team.team_id }}">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <span style="font-size: 0.78rem; font-weight: 800; color: #000000; text-transform: uppercase; letter-spacing: 0.05em; background: #f4f4f5; border: 1px solid var(--border-medium); padding: 3px 8px; border-radius: 4px;">Editing Your Team Roster</span>
+            <h2 style="font-family: var(--font-heading); font-size: 1.35rem; color: #000000; margin-top: 6px; font-weight: 800;">
+              Update {{ active_dept_upper }} • {{ selected_sport.name }}
+            </h2>
+          </div>
+          <a href="/register?sport={{ selected_sport_id }}#sport-section" class="btn-secondary">
+            ✕ Cancel Edit
+          </a>
+        </div>
+
+        {% if selected_sport.category == 'Mixed' %}
+        <div class="mixed-gender-meter" style="background: #fafafa; border: 1px solid #000000; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <span style="font-weight: 800; color: #000000; font-size: 0.88rem;">⚖️ Mixed Squad Requirement:</span>
+            <span style="font-weight: 600; color: #000000; margin-left: 6px; font-size: 0.88rem;">{{ selected_sport.gender_rule_desc }}</span>
+          </div>
+          <div class="gender-live-counter" style="font-weight: 800; color: #000000; font-size: 0.88rem;">
+            Squad Gender: 2 Boys & 2 Girls Required
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Captain -->
+        <div class="form-group-title">
+          <span>👑</span> Team Captain <span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 700;">(1 Player Required — All fields mandatory)</span>
+        </div>
+        <div class="player-row captain-row">
+          <div>
+            <div class="field-tag">Captain Name *</div>
+            <input type="text" name="captain_name" class="input-box" value="{{ editing_team.captain.name }}" placeholder="Full Name" required>
+          </div>
+          <div>
+            <div class="field-tag">Institute Email *</div>
+            <input type="email" name="captain_email" class="input-box" value="{{ editing_team.captain.email }}" placeholder="captain@{{ active_dept }}.iitr.ac.in" required>
+          </div>
+          <div>
+            <div class="field-tag">Student ID / Enrollment *</div>
+            <input type="text" name="captain_id" class="input-box" value="{{ editing_team.captain.student_id }}" placeholder="e.g. 23114050" required>
+          </div>
+          <div>
+            <div class="field-tag">Gender *</div>
+            {% if selected_sport.category == 'Boys' %}
+            <select name="captain_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Boy" selected>👦 Boy (Fixed)</option>
+            </select>
+            {% elif selected_sport.category == 'Girls' %}
+            <select name="captain_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Girl" selected>👧 Girl (Fixed)</option>
+            </select>
+            {% else %}
+            <select name="captain_gender" class="input-box gender-select" required>
+              <option value="Boy" {{ 'selected' if editing_team.captain.gender == 'Boy' else '' }}>👦 Boy</option>
+              <option value="Girl" {{ 'selected' if editing_team.captain.gender == 'Girl' else '' }}>👧 Girl</option>
+            </select>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Main Squad -->
+        {% set needed_main = selected_sport.main_count - 1 %}
+        {% if needed_main > 0 %}
+        <div class="form-group-title">
+          <span>⚔️</span> Main Squad <span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 700;">({{ needed_main }} Additional Players Required — All fields mandatory)</span>
+        </div>
+        {% for i in range(1, needed_main + 1) %}
+        {% set curr_p = editing_team.main_players[i - 1] if editing_team.main_players|length >= i else {} %}
+        <div class="player-row">
+          <div>
+            <div class="field-tag">Player #{{ i }} Name *</div>
+            <input type="text" name="main_player_{{ i }}_name" class="input-box" value="{{ curr_p.name or '' }}" placeholder="Player {{ i }} Full Name" required>
+          </div>
+          <div>
+            <div class="field-tag">Institute Email *</div>
+            <input type="email" name="main_player_{{ i }}_email" class="input-box" value="{{ curr_p.email or '' }}" placeholder="player{{ i }}@{{ active_dept }}.iitr.ac.in" required>
+          </div>
+          <div>
+            <div class="field-tag">Student ID / Enrollment *</div>
+            <input type="text" name="main_player_{{ i }}_id" class="input-box" value="{{ curr_p.student_id or '' }}" placeholder="e.g. 2311405{{ i }}" required>
+          </div>
+          <div>
+            <div class="field-tag">Gender *</div>
+            {% if selected_sport.category == 'Boys' %}
+            <select name="main_player_{{ i }}_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Boy" selected>👦 Boy (Fixed)</option>
+            </select>
+            {% elif selected_sport.category == 'Girls' %}
+            <select name="main_player_{{ i }}_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Girl" selected>👧 Girl (Fixed)</option>
+            </select>
+            {% else %}
+            <select name="main_player_{{ i }}_gender" class="input-box gender-select" required>
+              <option value="Boy" {{ 'selected' if curr_p.gender == 'Boy' else '' }}>👦 Boy</option>
+              <option value="Girl" {{ 'selected' if curr_p.gender == 'Girl' else '' }}>👧 Girl</option>
+            </select>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Substitutes -->
+        {% if selected_sport.sub_max > 0 %}
+        <div class="form-group-title">
+          <span>🛡️</span> Substitutes <span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 500;">(Optional, up to {{ selected_sport.sub_max }} — if adding, fill Name, Email & Student ID)</span>
+        </div>
+        {% for j in range(1, selected_sport.sub_max + 1) %}
+        {% set curr_s = editing_team.substitutes[j - 1] if editing_team.substitutes|length >= j else {} %}
+        <div class="player-row">
+          <div>
+            <div class="field-tag">Substitute #{{ j }} Name</div>
+            <input type="text" name="sub_player_{{ j }}_name" class="input-box" value="{{ curr_s.name or '' }}" placeholder="Leave blank if no substitute">
+          </div>
+          <div>
+            <div class="field-tag">Institute Email</div>
+            <input type="email" name="sub_player_{{ j }}_email" class="input-box" value="{{ curr_s.email or '' }}" placeholder="sub{{ j }}@{{ active_dept }}.iitr.ac.in">
+          </div>
+          <div>
+            <div class="field-tag">Student ID</div>
+            <input type="text" name="sub_player_{{ j }}_id" class="input-box" value="{{ curr_s.student_id or '' }}" placeholder="Enrollment No.">
+          </div>
+          <div>
+            <div class="field-tag">Gender</div>
+            {% if selected_sport.category == 'Boys' %}
+            <select name="sub_player_{{ j }}_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Boy" selected>👦 Boy (Fixed)</option>
+            </select>
+            {% elif selected_sport.category == 'Girls' %}
+            <select name="sub_player_{{ j }}_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Girl" selected>👧 Girl (Fixed)</option>
+            </select>
+            {% else %}
+            <select name="sub_player_{{ j }}_gender" class="input-box">
+              <option value="Boy" {{ 'selected' if curr_s.gender == 'Boy' else '' }}>👦 Boy</option>
+              <option value="Girl" {{ 'selected' if curr_s.gender == 'Girl' else '' }}>👧 Girl</option>
+            </select>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="background: #fafafa; border: 1px dashed var(--border-medium); border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-size: 0.85rem; color: var(--text-muted);">
+          ℹ️ <strong>No Substitutes Permitted:</strong> {{ selected_sport.name }} consists strictly of {{ selected_sport.main_count }} playing squad athletes.
+        </div>
+        {% endif %}
+
+        <div class="submit-bar" style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+          <a href="/register?sport={{ selected_sport_id }}#sport-section" class="btn-secondary">Cancel</a>
+          <button type="submit" class="btn-submit">💾 Save Roster Changes</button>
+        </div>
+      </form>
+
+      <!-- MODE 2: Standard View - List Existing Teams & Registration Form -->
+      {% else %}
+
+      <!-- 2A. List of Existing Teams (if any have been formed) -->
+      {% if existing_teams and existing_teams|length > 0 %}
+      <div style="margin-bottom: 36px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+          <h2 style="font-family: var(--font-heading); font-size: 1.35rem; color: #000000; font-weight: 800;">
+            Registered {{ active_dept_upper }} Teams ({{ existing_teams|length }})
+          </h2>
+          {% if not has_user_formed_team %}
+          <a href="#team-form" class="btn-secondary" style="font-size: 0.85rem; padding: 7px 14px;">
+            + Form Your Team
+          </a>
+          {% else %}
+          <span style="font-size: 0.82rem; color: #ffffff; background: #000000; padding: 6px 14px; border-radius: 6px; font-weight: 700;">
+            ✓ Your Team Registered (Max 1)
+          </span>
+          {% endif %}
+        </div>
+
+        {% for team in existing_teams %}
+        <div class="existing-team-wrapper">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 0.78rem; font-weight: 800; color: #ffffff; background: #000000; padding: 3px 9px; border-radius: 4px;">
+                  TEAM #{{ loop.index }}
+                </span>
+                <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: #000000; margin: 0; font-weight: 800;">
+                  {{ active_dept_upper }} • {{ selected_sport.name }}
+                </h3>
+              </div>
+              <div style="color: var(--text-muted); font-size: 0.84rem; margin-top: 4px;">
+                Formed by <strong style="color: #000000;">{{ team.created_by_name or team.created_by }}</strong> 
+                ({{ team.created_by }}) • Captain: <strong style="color: #000000;">{{ team.captain.name }}</strong> • Total: <strong style="color: #000000;">{{ team.total_strength }} Athletes</strong> 
+                ({{ team.total_playing }} Playing + {{ team.total_substitutes }} Subs)
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              {% if team.created_by == user.email %}
+              <a 
+                href="/register?sport={{ selected_sport_id }}&action=edit&team_id={{ team.team_id }}#sport-section" 
+                class="btn-secondary"
+                style="font-size: 0.82rem; padding: 7px 14px;"
+                id="edit-team-{{ loop.index }}"
+              >
+                ✏️ Edit Team #{{ loop.index }}
+              </a>
+              <form action="/register/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete Team #{{ loop.index }} for {{ selected_sport.name }}?');">
+                <input type="hidden" name="sport_id" value="{{ selected_sport_id }}">
+                <input type="hidden" name="team_id" value="{{ team.team_id }}">
+                <button type="submit" class="btn-danger" style="font-size: 0.82rem; padding: 7px 14px;" id="delete-team-{{ loop.index }}">
+                  🗑️ Delete
+                </button>
+              </form>
+              {% else %}
+              <span style="font-size: 0.8rem; color: var(--text-dim); background: #f4f4f5; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-medium); font-weight: 600;">
+                🔒 Formed by {{ team.created_by_name or team.created_by }}
+              </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Captain Card -->
+          <div class="roster-card">
+            <div style="padding: 10px 14px; background: #fafafa; border-bottom: 1px solid var(--border-medium); display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.78rem; font-weight: 800; color: #000000; text-transform: uppercase;">
+                👑 Captain (Required)
+              </span>
+              <span style="font-size: 0.75rem; color: var(--text-dim);">Team Creator & Athlete</span>
+            </div>
+            <div class="table-responsive" style="border: none; margin: 0;">
+              <table class="roster-table">
+                <thead>
+                  <tr>
+                    <th>Captain Name</th>
+                    <th>Institute Email</th>
+                    <th>Student ID</th>
+                    <th>Gender</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong style="color: #000000;">{{ team.captain.name }}</strong></td>
+                    <td style="color: #000000; font-weight: 600;">{{ team.captain.email }}</td>
+                    <td>{{ team.captain.student_id or '—' }}</td>
+                    <td>{{ team.captain.gender }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Main Squad Table -->
+          {% if team.main_players and team.main_players|length > 0 %}
+          <div class="roster-card">
+            <div style="padding: 10px 14px; background: #fafafa; border-bottom: 1px solid var(--border-medium);">
+              <span style="font-size: 0.78rem; font-weight: 800; color: #000000; text-transform: uppercase;">
+                ⚔️ Main Playing Squad ({{ team.main_players|length }} Players)
+              </span>
+            </div>
+            <div class="table-responsive" style="border: none; margin: 0;">
+              <table class="roster-table">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;">#</th>
+                    <th>Player Name</th>
+                    <th>Institute Email</th>
+                    <th>Student ID</th>
+                    <th>Gender</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for p in team.main_players %}
+                  <tr>
+                    <td style="color: var(--text-dim); font-weight: 700;">{{ loop.index }}</td>
+                    <td><strong style="color: #000000;">{{ p.name }}</strong></td>
+                    <td style="color: #000000; font-weight: 600;">{{ p.email or '—' }}</td>
+                    <td>{{ p.student_id or '—' }}</td>
+                    <td>{{ p.gender }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Substitutes Table -->
+          {% if selected_sport.sub_max > 0 %}
+          <div class="roster-card" style="margin-bottom: 0;">
+            <div style="padding: 10px 14px; background: #fafafa; border-bottom: 1px solid var(--border-medium);">
+              <span style="font-size: 0.78rem; font-weight: 800; color: #000000; text-transform: uppercase;">
+                🛡️ Substitutes ({{ team.substitutes|length }} of max {{ selected_sport.sub_max }})
+              </span>
+            </div>
+            {% if team.substitutes and team.substitutes|length > 0 %}
+            <div class="table-responsive" style="border: none; margin: 0;">
+              <table class="roster-table">
+                <thead>
+                  <tr>
+                    <th style="width: 70px;">#</th>
+                    <th>Substitute Name</th>
+                    <th>Institute Email</th>
+                    <th>Student ID</th>
+                    <th>Gender</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for s in team.substitutes %}
+                  <tr>
+                    <td style="color: var(--text-dim); font-weight: 700;">Sub {{ loop.index }}</td>
+                    <td><strong style="color: #000000;">{{ s.name }}</strong></td>
+                    <td style="color: #000000; font-weight: 600;">{{ s.email or '—' }}</td>
+                    <td>{{ s.student_id or '—' }}</td>
+                    <td>{{ s.gender }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div style="padding: 12px 16px; font-size: 0.82rem; color: var(--text-muted);">
+              No substitutes added to this team roster.
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- 2B. Team Status or Registration Form -->
+      {% if has_user_formed_team %}
+      <div style="background: #fafafa; border: 2px solid #000000; border-radius: 14px; padding: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div style="max-width: 650px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.3rem;">📋</span>
+            <span style="font-family: var(--font-heading); font-weight: 800; color: #000000; font-size: 1.15rem;">
+              You have already registered your team for {{ selected_sport.name }}
+            </span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 8px 0 0 0; line-height: 1.5;">
+            Each student can form at most <strong>1 team of their own</strong> per sport. Your registered team is displayed above. If you wish to update player rosters or swap members, click <strong>Edit Team</strong>. If you want to disband and create a new one, you can delete it.
+          </p>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <a href="/register?sport={{ selected_sport_id }}&action=edit&team_id={{ user_formed_team.team_id }}#sport-section" class="btn-submit" style="font-size: 0.9rem; padding: 10px 20px;">
+            ✏️ Edit Your Team
+          </a>
+        </div>
+      </div>
+      {% else %}
+      <form action="/register" method="POST" id="team-form" style="background: #ffffff; border: 1px solid var(--border-medium); border-radius: 14px; padding: 24px;">
+        <input type="hidden" name="sport_id" value="{{ selected_sport.id }}">
+
+        <div style="margin-bottom: 20px;">
+          <h2 style="font-family: var(--font-heading); font-size: 1.35rem; color: #000000; margin-bottom: 4px; font-weight: 800;">
+            {% if existing_teams|length == 0 %}
+            Register First {{ active_dept_upper }} Team for {{ selected_sport.name }}
+            {% else %}
+            Form Your {{ active_dept_upper }} Team for {{ selected_sport.name }} (Team #{{ existing_teams|length + 1 }})
+            {% endif %}
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.86rem; line-height: 1.45;">
+            Any student in {{ active_dept_upper }} can form a team and appoint anyone from the department as Captain. 
+            Each student can form at most 1 team of their own per sport. 
+            <span style="color: #000000; font-weight: 700; background: #f4f4f5; padding: 1px 6px; border-radius: 4px;">Note: If none of the members are different from an existing registered team, the team cannot be added.</span>
+          </p>
+        </div>
+
+        {% if selected_sport.category == 'Mixed' %}
+        <div class="mixed-gender-meter" style="background: #fafafa; border: 1px solid #000000; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <span style="font-weight: 800; color: #000000; font-size: 0.88rem;">⚖️ Mixed Squad Requirement:</span>
+            <span style="font-weight: 600; color: #000000; margin-left: 6px; font-size: 0.88rem;">{{ selected_sport.gender_rule_desc }}</span>
+          </div>
+          <div class="gender-live-counter" style="font-weight: 800; color: #000000; font-size: 0.88rem;">
+            Squad Gender: {{ selected_sport.gender_spec }} Required
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- 1. Captain (1 Player Required) -->
+        <div class="form-group-title">
+          <span>👑</span> Team Captain <span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 700;">(1 Player Required — All fields mandatory)</span>
+        </div>
+        <div class="player-row captain-row">
+          <div>
+            <div class="field-tag">Captain Name *</div>
+            <input type="text" name="captain_name" class="input-box" value="{{ user.name }}" placeholder="Captain's Name" required>
+          </div>
+          <div>
+            <div class="field-tag">Institute Email *</div>
+            <input type="email" name="captain_email" class="input-box" value="{{ user.email }}" placeholder="captain@{{ active_dept }}.iitr.ac.in" required>
+          </div>
+          <div>
+            <div class="field-tag">Student ID / Enrollment *</div>
+            <input type="text" name="captain_id" class="input-box" placeholder="e.g. 23114050" required>
+          </div>
+          <div>
+            <div class="field-tag">Gender *</div>
+            {% if selected_sport.category == 'Boys' %}
+            <select name="captain_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Boy" selected>👦 Boy (Fixed)</option>
+            </select>
+            {% elif selected_sport.category == 'Girls' %}
+            <select name="captain_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Girl" selected>👧 Girl (Fixed)</option>
+            </select>
+            {% else %}
+            <select name="captain_gender" class="input-box gender-select" required>
+              <option value="Boy" selected>👦 Boy</option>
+              <option value="Girl">👧 Girl</option>
+            </select>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- 2. Main Playing Squad (Required) -->
+        {% set needed_main = selected_sport.main_count - 1 %}
+        {% if needed_main > 0 %}
+        <div class="form-group-title">
+          <span>⚔️</span> Main Playing Squad <span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 700;">({{ needed_main }} Additional Players Required — All fields mandatory)</span>
+        </div>
+
+        {% for i in range(1, needed_main + 1) %}
+        <div class="player-row">
+          <div>
+            <div class="field-tag">Main Player #{{ i }} Name *</div>
+            <input 
+              type="text" 
+              name="main_player_{{ i }}_name" 
+              class="input-box" 
+              placeholder="Player {{ i }} Full Name" 
+              required
+            >
+          </div>
+          <div>
+            <div class="field-tag">Institute Email *</div>
+            <input 
+              type="email" 
+              name="main_player_{{ i }}_email" 
+              class="input-box" 
+              placeholder="player{{ i }}@{{ active_dept }}.iitr.ac.in"
+              required
+            >
+          </div>
+          <div>
+            <div class="field-tag">Student ID / Enrollment *</div>
+            <input 
+              type="text" 
+              name="main_player_{{ i }}_id" 
+              class="input-box" 
+              placeholder="e.g. 2311405{{ i }}"
+              required
+            >
+          </div>
+          <div>
+            <div class="field-tag">Gender *</div>
+            {% if selected_sport.category == 'Boys' %}
+            <select name="main_player_{{ i }}_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Boy" selected>👦 Boy (Fixed)</option>
+            </select>
+            {% elif selected_sport.category == 'Girls' %}
+            <select name="main_player_{{ i }}_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Girl" selected>👧 Girl (Fixed)</option>
+            </select>
+            {% else %}
+            <select name="main_player_{{ i }}_gender" class="input-box gender-select" required>
+              <option value="Boy" {{ 'selected' if i == 1 and selected_sport.id == 'badminton_mix' else ('selected' if i == 1 and selected_sport.id == 'carrom_mix' else '') }}>👦 Boy</option>
+              <option value="Girl" {{ 'selected' if i >= 2 and selected_sport.id == 'badminton_mix' else ('selected' if i == 2 and selected_sport.id == 'carrom_mix' else '') }}>👧 Girl</option>
+            </select>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- 3. Substitutes (Optional, up to sub_max) -->
+        {% if selected_sport.sub_max > 0 %}
+        <div class="form-group-title">
+          <span>🛡️</span> Substitute Players <span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 500;">(Optional: Up to {{ selected_sport.sub_max }} on bench — if adding, fill Name, Email & Student ID)</span>
+        </div>
+
+        {% for j in range(1, selected_sport.sub_max + 1) %}
+        <div class="player-row">
+          <div>
+            <div class="field-tag">Substitute #{{ j }} Name</div>
+            <input 
+              type="text" 
+              name="sub_player_{{ j }}_name" 
+              class="input-box" 
+              placeholder="Leave blank if no substitute"
+            >
+          </div>
+          <div>
+            <div class="field-tag">Institute Email</div>
+            <input 
+              type="email" 
+              name="sub_player_{{ j }}_email" 
+              class="input-box" 
+              placeholder="sub{{ j }}@{{ active_dept }}.iitr.ac.in"
+            >
+          </div>
+          <div>
+            <div class="field-tag">Student ID</div>
+            <input 
+              type="text" 
+              name="sub_player_{{ j }}_id" 
+              class="input-box" 
+              placeholder="Enrollment No."
+            >
+          </div>
+          <div>
+            <div class="field-tag">Gender</div>
+            {% if selected_sport.category == 'Boys' %}
+            <select name="sub_player_{{ j }}_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Boy" selected>👦 Boy (Fixed)</option>
+            </select>
+            {% elif selected_sport.category == 'Girls' %}
+            <select name="sub_player_{{ j }}_gender" class="input-box" style="background: #f4f4f5; cursor: not-allowed;">
+              <option value="Girl" selected>👧 Girl (Fixed)</option>
+            </select>
+            {% else %}
+            <select name="sub_player_{{ j }}_gender" class="input-box">
+              <option value="Boy">👦 Boy</option>
+              <option value="Girl">👧 Girl</option>
+            </select>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="background: #fafafa; border: 1px dashed var(--border-medium); border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-size: 0.85rem; color: var(--text-muted);">
+          ℹ️ <strong>No Substitutes Permitted:</strong> {{ selected_sport.name }} consists strictly of {{ selected_sport.main_count }} playing squad athletes.
+        </div>
+        {% endif %}
+
+        <!-- Submit Bar -->
+        <div class="submit-bar" style="margin-top: 30px; padding-top: 18px; border-top: 1px solid var(--border-medium); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div style="font-size: 0.88rem; color: var(--text-main);">
+            Playing Squad: <strong>1 Captain</strong> + <strong>{{ needed_main }} Main</strong> 
+            {% if selected_sport.sub_max > 0 %}+ up to {{ selected_sport.sub_max }} Substitutes{% endif %}
+          </div>
+          <button type="submit" class="btn-submit" id="submit-team-btn">
+            Confirm & Register Team for {{ active_dept_upper }} →
+          </button>
+        </div>
+      </form>
+      {% endif %}
+      {% endif %}
+
+    </div>
+
+  </div>
+
+  <script>
+    // Live Mixed Gender Balance Monitor
+    function updateMixedGenderCounter() {
+      const activeForm = document.querySelector('#team-form') || document.querySelector('#edit-team-form');
+      if (!activeForm) return;
+
+      const selects = activeForm.querySelectorAll('.gender-select');
+      if (!selects.length) return;
+
+      let boys = 0;
+      let girls = 0;
+      selects.forEach(sel => {
+        if (sel.value === 'Boy') boys++;
+        if (sel.value === 'Girl') girls++;
+      });
+
+      const counters = document.querySelectorAll('.gender-live-counter');
+      counters.forEach(cnt => {
+        cnt.innerHTML = `Current Squad: <span style="font-weight: 800; text-decoration: underline;">${boys} Boy${boys !== 1 ? 's' : ''}</span>, <span style="font-weight: 800; text-decoration: underline;">${girls} Girl${girls !== 1 ? 's' : ''}</span>`;
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateMixedGenderCounter();
+      document.querySelectorAll('.gender-select').forEach(sel => {
+        sel.addEventListener('change', updateMixedGenderCounter);
+      });
+
+      // Prevent accidental double submission
+      document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+          if (e.defaultPrevented) return;
+          const btn = this.querySelector('button[type="submit"]');
+          if (btn) {
+            btn.innerHTML = '⏳ Submitting...';
+            btn.style.opacity = '0.7';
+            btn.style.pointerEvents = 'none';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

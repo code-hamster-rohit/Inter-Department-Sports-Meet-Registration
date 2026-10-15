@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registered Teams | Inter-Dept Sports Meet 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .list-container {
+      width: 100%;
+      max-width: 1020px;
+      margin: 40px auto 60px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .teams-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 18px;
+    }
+    .team-card {
+      background: rgba(17, 24, 39, 0.7);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      text-decoration: none;
+      color: inherit;
+    }
+    .team-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(6, 182, 212, 0.4);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(6, 182, 212, 0.15);
+    }
+    .badge-dept {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow">
+    <div class="glow-orb-1"></div>
+    <div class="glow-orb-2"></div>
+  </div>
+  <div class="grid-overlay"></div>
+
+  <div class="list-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <a href="/dashboard" class="btn-back" style="margin-bottom: 8px; display: inline-block;">← Back to Dashboard</a>
+        <h1 style="font-family: var(--font-heading); font-size: 2rem; font-weight: 800; color: #fff;">
+          Registered Department Teams
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">
+          Total registered teams across all events: <strong>{{ teams|length }}</strong>
+        </p>
+      </div>
+      <div>
+        <a href="/register" class="btn-submit-team" style="display: inline-block; text-decoration: none; padding: 12px 24px; font-size: 0.95rem;">
+          + Register New Team
+        </a>
+      </div>
+    </div>
+
+    {% if db_error %}
+    <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 16px; padding: 18px 22px; margin-bottom: 24px;">
+      <div style="display: flex; align-items: flex-start; gap: 14px;">
+        <span style="font-size: 1.6rem; line-height: 1;">⚠️</span>
+        <div style="flex: 1;">
+          <div style="font-weight: 700; color: #f87171; font-size: 1rem; margin-bottom: 6px;">
+            MongoDB Atlas Network Notice
+          </div>
+          <p style="font-size: 0.88rem; color: #fca5a5; line-height: 1.5; margin: 0;">
+            {{ db_error }}. Whitelist your IP (<code>103.37.201.131</code> or <code>0.0.0.0/0</code>) under Atlas Network Access.
+          </p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if teams and teams|length > 0 %}
+    <div class="teams-grid">
+      {% for t in teams %}
+      <a href="/teams/{{ t._id }}" class="team-card">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span class="badge-dept">{{ t.department }} Dept</span>
+            <span style="font-size: 0.8rem; color: var(--accent-amber); font-weight: 600;">
+              {{ t.total_strength }} Athletes
+            </span>
+          </div>
+
+          <h2 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 700; color: #fff; margin-bottom: 4px;">
+            {{ t.team_name }}
+          </h2>
+          <div style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 14px;">
+            {{ t.sport_name }} • {{ t.category }}
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-subtle); padding-top: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: var(--text-muted);">
+          <div>👑 Captain: <strong style="color: #fff;">{{ t.captain.name }}</strong></div>
+          <span style="color: var(--accent-cyan); font-weight: 600;">View Roster →</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px; background: var(--bg-surface); border: 1px dashed var(--border-subtle); border-radius: 20px;">
+      <div style="font-size: 2.5rem; margin-bottom: 12px;">🏆</div>
+      <h3 style="font-family: var(--font-heading); font-size: 1.4rem; color: #fff; margin-bottom: 8px;">No Teams Registered Yet</h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">Be the first to register a team for your department!</p>
+      <a href="/register" class="btn-submit-team" style="display: inline-block; text-decoration: none; padding: 12px 24px;">
+        Register First Team Now →
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
