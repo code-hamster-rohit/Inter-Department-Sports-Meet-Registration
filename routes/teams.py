@@ -108,7 +108,7 @@ SPORTS_CONFIG: dict[str, dict[str, Any]] = {
         "sub_max": 1,
         "formula": "b2,g2 + 1",
         "squad_notation": "4 Playing (1 Captain + 3 Main: exactly 2 Boys & 2 Girls) + up to 1 Substitute",
-        "squad_badge": "4 Playing (2B + 2G) + 1 Sub",
+        "squad_badge": "4 Playing (2B + 2G) + up to 1 Sub",
         "gender_badge": "👫 Mixed: Exactly 2 Boys & 2 Girls in Main Squad",
         "gender_rule_desc": "The 4 playing squad members (Captain + Main squad) MUST include exactly 2 Boys and 2 Girls. The optional substitute can be Boy or Girl.",
         "description": "4 Playing Players (1 Captain + 3 Main: exactly 2 Boys and 2 Girls) + up to 1 Substitute (Boy or Girl). Total squad: 4 to 5 Athletes.",
