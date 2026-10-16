@@ -753,7 +753,7 @@
           </div>
           <div>
             <div class="field-tag">Institute Email *</div>
-            <input type="email" name="captain_email" class="input-box" value="{{ editing_team.captain.email }}" placeholder="captain@{{ active_dept }}.iitr.ac.in" required>
+            <input type="email" name="captain_email" class="input-box" value="{{ editing_team.captain.email }}" placeholder="captain@{{ dept_email_domain }}.iitr.ac.in" required>
           </div>
           <div>
             <div class="field-tag">Student ID / Enrollment *</div>
@@ -793,7 +793,7 @@
           </div>
           <div>
             <div class="field-tag">Institute Email *</div>
-            <input type="email" name="main_player_{{ i }}_email" class="input-box" value="{{ curr_p.email or '' }}" placeholder="player{{ i }}@{{ active_dept }}.iitr.ac.in" required>
+            <input type="email" name="main_player_{{ i }}_email" class="input-box" value="{{ curr_p.email or '' }}" placeholder="player{{ i }}@{{ dept_email_domain }}.iitr.ac.in" required>
           </div>
           <div>
             <div class="field-tag">Student ID / Enrollment *</div>
@@ -834,7 +834,7 @@
           </div>
           <div>
             <div class="field-tag">Institute Email</div>
-            <input type="email" name="sub_player_{{ j }}_email" class="input-box" value="{{ curr_s.email or '' }}" placeholder="sub{{ j }}@{{ active_dept }}.iitr.ac.in">
+            <input type="email" name="sub_player_{{ j }}_email" class="input-box" value="{{ curr_s.email or '' }}" placeholder="sub{{ j }}@{{ dept_email_domain }}.iitr.ac.in">
           </div>
           <div>
             <div class="field-tag">Student ID</div>
@@ -1108,7 +1108,7 @@
           </div>
           <div>
             <div class="field-tag">Institute Email *</div>
-            <input type="email" name="captain_email" class="input-box" value="{{ user.email }}" placeholder="captain@{{ active_dept }}.iitr.ac.in" required>
+            <input type="email" name="captain_email" class="input-box" value="{{ user.email }}" placeholder="captain@{{ dept_email_domain }}.iitr.ac.in" required>
           </div>
           <div>
             <div class="field-tag">Student ID / Enrollment *</div>
@@ -1158,7 +1158,7 @@
               type="email" 
               name="main_player_{{ i }}_email" 
               class="input-box" 
-              placeholder="player{{ i }}@{{ active_dept }}.iitr.ac.in"
+              placeholder="player{{ i }}@{{ dept_email_domain }}.iitr.ac.in"
               required
             >
           </div>
@@ -1216,7 +1216,7 @@
               type="email" 
               name="sub_player_{{ j }}_email" 
               class="input-box" 
-              placeholder="sub{{ j }}@{{ active_dept }}.iitr.ac.in"
+              placeholder="sub{{ j }}@{{ dept_email_domain }}.iitr.ac.in"
             >
           </div>
           <div>

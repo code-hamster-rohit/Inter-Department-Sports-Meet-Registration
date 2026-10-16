@@ -15,7 +15,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from database.config import get_client
-from routes.auth import ALLOWED_DEPARTMENTS, extract_department
+from routes.auth import (
+    ALLOWED_DEPARTMENTS,
+    DEPARTMENT_CONFIG,
+    EMAIL_SUBDOMAIN_TO_DEPT,
+    extract_department,
+    resolve_department,
+)
 
 router = APIRouter(tags=["Registration & Teams"])
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -303,7 +309,8 @@ def _get_user_dept(user: dict[str, Any]) -> str:
     Extracts and normalizes the student's department code.
     Strictly locks each student to their own department.
     """
-    return (user.get("department") or "").strip().lower()
+    raw_dept = (user.get("department") or "").strip().lower()
+    return EMAIL_SUBDOMAIN_TO_DEPT.get(raw_dept, raw_dept)
 
 
 def _get_dept_collection(dept: str):
@@ -311,7 +318,8 @@ def _get_dept_collection(dept: str):
     Returns the AsyncMongoCollection from the 'departments' database.
     """
     client = get_client()
-    return client["departments"][dept.lower()]
+    dept_code = EMAIL_SUBDOMAIN_TO_DEPT.get(dept.lower(), dept.lower())
+    return client["departments"][dept_code]
 
 
 def are_members_same(m1: dict[str, Any], m2: dict[str, Any]) -> bool:
@@ -384,15 +392,18 @@ def validate_team_roster(
     4. Gender Rules:
        - Boys sports: 100% of all squad members (Captain, Main, Subs) MUST be 'Boy'.
        - Girls sports: 100% of all squad members (Captain, Main, Subs) MUST be 'Girl'.
-       - Badminton (mix): Playing squad (Captain + 3 Main = 4 athletes) MUST have EXACTLY 2 Boys and 2 Girls.
-       - Carrom (mix): Playing squad (Captain + 2 Main = 3 athletes) MUST have EXACTLY 2 Boys and 1 Girl.
+       - Badminton (mix): Playing squad (Captain + 3 Main = 4 athletes) MUST have EXACTLY 2 Boys and 2 Girls (Subs: up to 1 Boy and 1 Girl).
+       - Carrom (mix): Playing squad (Captain + 1 Main = 2 athletes) MUST have EXACTLY 1 Boy and 1 Girl (Subs: up to 1 Boy and 1 Girl).
     5. Internal Uniqueness: No student can be duplicated in the same team roster.
     
     Returns: (captain, main_players, substitutes, error_message)
     """
     sport_id = sport_cfg["id"]
     category = sport_cfg["category"]
-    dept_norm = user_dept.strip().lower()
+    dept_norm = EMAIL_SUBDOMAIN_TO_DEPT.get(user_dept.strip().lower(), user_dept.strip().lower())
+    dept_cfg = DEPARTMENT_CONFIG.get(dept_norm, {"abbr": dept_norm.upper(), "email_domain": dept_norm})
+    expected_domain = dept_cfg.get("email_domain", dept_norm)
+    expected_abbr = dept_cfg.get("abbr", dept_norm.upper())
 
     # 1. Captain Validation (1 Required)
     c_name = str(form_data.get("captain_name", "")).strip()
@@ -409,11 +420,13 @@ def validate_team_roster(
     if not c_gender:
         return None, None, None, "Captain Gender is required."
 
-    c_dept = extract_department(c_email)
+    c_subdomain = extract_department(c_email)
+    c_dept = EMAIL_SUBDOMAIN_TO_DEPT.get(c_subdomain.lower()) if c_subdomain else None
     if not c_dept:
-        return None, None, None, f"Captain email '{c_email}' must be a valid IITR department student email (<name>@{dept_norm}.iitr.ac.in)."
+        return None, None, None, f"Captain email '{c_email}' must be a valid IITR department student email (<name>@{expected_domain}.iitr.ac.in)."
     if c_dept != dept_norm:
-        return None, None, None, f"Cross-Department Error: Captain belongs to '{c_dept.upper()}', but this team is strictly for '{dept_norm.upper()}'."
+        c_abbr = DEPARTMENT_CONFIG.get(c_dept, {}).get("abbr", (c_subdomain or "").upper())
+        return None, None, None, f"Cross-Department Error: Captain belongs to '{c_abbr}', but this team is strictly for '{expected_abbr}'."
 
     # Gender check on Captain
     if category == "Boys" and c_gender != "Boy":
@@ -450,11 +463,13 @@ def validate_team_roster(
         if not p_gender:
             return None, None, None, f"Main Player #{i} Gender is required."
 
-        p_dept = extract_department(p_email)
+        p_subdomain = extract_department(p_email)
+        p_dept = EMAIL_SUBDOMAIN_TO_DEPT.get(p_subdomain.lower()) if p_subdomain else None
         if not p_dept:
-            return None, None, None, f"Main Player #{i} email '{p_email}' must be a valid IITR department student email (<name>@{dept_norm}.iitr.ac.in)."
+            return None, None, None, f"Main Player #{i} email '{p_email}' must be a valid IITR department student email (<name>@{expected_domain}.iitr.ac.in)."
         if p_dept != dept_norm:
-            return None, None, None, f"Cross-Department Error: Main Player #{i} belongs to '{p_dept.upper()}', but this team is strictly for '{dept_norm.upper()}'."
+            p_abbr = DEPARTMENT_CONFIG.get(p_dept, {}).get("abbr", (p_subdomain or "").upper())
+            return None, None, None, f"Cross-Department Error: Main Player #{i} belongs to '{p_abbr}', but this team is strictly for '{expected_abbr}'."
 
         if category == "Boys" and p_gender != "Boy":
             return None, None, None, f"Strict Gender Rule: Only male athletes ('Boy') can be registered for {sport_cfg['name']}. Player #{i} '{p_name}' cannot be '{p_gender}'."
@@ -498,11 +513,13 @@ def validate_team_roster(
                 if not s_gender:
                     return None, None, None, f"Substitute #{j} Gender is required if adding substitute #{j}."
 
-                s_dept = extract_department(s_email)
+                s_subdomain = extract_department(s_email)
+                s_dept = EMAIL_SUBDOMAIN_TO_DEPT.get(s_subdomain.lower()) if s_subdomain else None
                 if not s_dept:
-                    return None, None, None, f"Substitute #{j} email '{s_email}' must be a valid IITR department student email."
+                    return None, None, None, f"Substitute #{j} email '{s_email}' must be a valid IITR department student email (<name>@{expected_domain}.iitr.ac.in)."
                 if s_dept != dept_norm:
-                    return None, None, None, f"Cross-Department Error: Substitute #{j} belongs to '{s_dept.upper()}', but this team is strictly for '{dept_norm.upper()}'."
+                    s_abbr = DEPARTMENT_CONFIG.get(s_dept, {}).get("abbr", (s_subdomain or "").upper())
+                    return None, None, None, f"Cross-Department Error: Substitute #{j} belongs to '{s_abbr}', but this team is strictly for '{expected_abbr}'."
 
                 if category == "Boys" and s_gender != "Boy":
                     return None, None, None, f"Strict Gender Rule: Only male athletes ('Boy') can be registered for {sport_cfg['name']}. Substitute #{j} cannot be '{s_gender}'."
@@ -668,7 +685,7 @@ async def register_page(
                 "rejected_email": user.get("email"),
                 "detected_dept": active_dept.upper() if active_dept else "None / Staff",
                 "error_title": "Department Not Competing",
-                "error_message": "Access restricted: Only students from AMSC, PE, and PPE can access the portal.",
+                "error_message": "Access restricted: Only students from AMSC, PPE, and PPT can access the portal.",
                 "reason": "Your account department is not eligible for this competition.",
             },
             status_code=403,
@@ -708,13 +725,18 @@ async def register_page(
     success_message = MESSAGES.get(msg or "")
     error_message = flash_error or ERRORS.get(err or "")
 
+    dept_cfg = DEPARTMENT_CONFIG.get(active_dept, {"abbr": active_dept.upper(), "email_domain": active_dept})
+    active_dept_upper = dept_cfg.get("abbr", active_dept.upper())
+    dept_email_domain = dept_cfg.get("email_domain", active_dept)
+
     return templates.TemplateResponse(
         request=request,
         name="register.html",
         context={
             "user": user,
             "active_dept": active_dept,
-            "active_dept_upper": active_dept.upper(),
+            "active_dept_upper": active_dept_upper,
+            "dept_email_domain": dept_email_domain,
             "sports": SPORTS_CONFIG,
             "selected_sport_id": selected_sport_id,
             "selected_sport": selected_sport,
@@ -784,13 +806,16 @@ async def create_team(request: Request):
         )
 
     # Build Team Record with unique team_id
+    dept_norm = EMAIL_SUBDOMAIN_TO_DEPT.get(dept.lower(), dept.lower())
+    dept_abbr = DEPARTMENT_CONFIG.get(dept_norm, {}).get("abbr", dept_norm.upper())
     new_team_id = f"team_{uuid.uuid4().hex[:10]}"
     team_record = {
         "team_id": new_team_id,
         "sport_id": sport_id,
         "sport_name": sport_cfg["name"],
         "category": sport_cfg["category"],
-        "department": dept.upper(),
+        "department": dept_abbr,
+        "department_code": dept_norm,
         "created_by": user_email,
         "created_by_name": user.get("name", "Athlete"),
         "captain": captain,

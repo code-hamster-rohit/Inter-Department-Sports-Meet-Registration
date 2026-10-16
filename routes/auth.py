@@ -33,8 +33,58 @@ def get_redirect_uri(request: Request | None = None) -> str:
 # Regex matching <name>@<dept>.iitr.ac.in as well as @iitr.ac.in
 IITR_EMAIL_REGEX = re.compile(r"^[^@]+@([a-zA-Z0-9-]+\.)*iitr\.ac\.in$", re.IGNORECASE)
 
-# Only these 3 departments are permitted to compete and access the portal
-ALLOWED_DEPARTMENTS: set[str] = {"amsc", "pe", "ppe"}
+# Competing Departments Configuration:
+# 1. AMSC: Email subdomain 'amsc' -> Department Abbreviation 'AMSC'
+# 2. PPE:  Email subdomain 'pe'   -> Department Abbreviation 'PPE'
+# 3. PPT:  Email subdomain 'pt'   -> Department Abbreviation 'PPT'
+
+DEPARTMENT_CONFIG: dict[str, dict[str, str]] = {
+    "amsc": {
+        "code": "amsc",
+        "abbr": "AMSC",
+        "name": "AMSC",
+        "email_domain": "amsc",
+    },
+    "ppe": {
+        "code": "ppe",
+        "abbr": "PPE",
+        "name": "PPE",
+        "email_domain": "pe",
+    },
+    "ppt": {
+        "code": "ppt",
+        "abbr": "PPT",
+        "name": "PPT",
+        "email_domain": "pt",
+    },
+}
+
+# Subdomain alias mapping (maps email subdomain to canonical dept code)
+EMAIL_SUBDOMAIN_TO_DEPT: dict[str, str] = {
+    "amsc": "amsc",
+    "pe": "ppe",
+    "ppe": "ppe",
+    "pt": "ppt",
+    "ppt": "ppt",
+}
+
+# Canonical department codes permitted to compete and access the portal
+ALLOWED_DEPARTMENTS: set[str] = {"amsc", "ppe", "ppt"}
+
+
+def resolve_department(email: str) -> dict[str, str] | None:
+    """
+    Given an institute email, extracts the subdomain and resolves to the
+    canonical department config.
+    Returns None if the email is not from one of the 3 competing departments.
+    """
+    subdomain = extract_department(email)
+    if not subdomain:
+        return None
+    dept_code = EMAIL_SUBDOMAIN_TO_DEPT.get(subdomain.lower())
+    if not dept_code or dept_code not in DEPARTMENT_CONFIG:
+        return None
+    return DEPARTMENT_CONFIG[dept_code]
 
 
 def is_valid_iitr_email(email: str) -> bool:
@@ -198,11 +248,12 @@ async def auth_callback(
             status_code=403,
         )
 
-    # Extract department subdomain
-    dept = extract_department(email)
+    # Extract department subdomain & resolve canonical department
+    subdomain = extract_department(email)
+    dept_info = resolve_department(email) if subdomain else None
 
     # Rule: Staff or accounts without a department subdomain are not allowed
-    if not dept:
+    if not subdomain:
         request.session.clear()
         return templates.TemplateResponse(
             request=request,
@@ -212,32 +263,38 @@ async def auth_callback(
                 "detected_dept": "None (Staff / General Account)",
                 "error_title": "Staff Accounts Not Permitted",
                 "error_message": "Access restricted: Staff and administrative accounts (@iitr.ac.in) without a student department subdomain are not eligible to register or compete.",
-                "reason": "Only students from the 3 competing departments (AMSC, PE, PPE) are permitted to enter.",
+                "reason": "Only students from the 3 competing departments (AMSC, PPE, PPT) are permitted to enter.",
             },
             status_code=403,
         )
 
     # Rule: Only 3 competing departments are allowed
-    if dept not in ALLOWED_DEPARTMENTS:
+    if not dept_info:
         request.session.clear()
         return templates.TemplateResponse(
             request=request,
             name="unauthorized.html",
             context={
                 "rejected_email": email,
-                "detected_dept": dept.upper(),
+                "detected_dept": subdomain.upper(),
                 "error_title": "Department Not Competing",
-                "error_message": f"Access restricted: Department '{dept.upper()}' is not participating in this sports meet.",
-                "reason": "This tournament is exclusively between 3 departments: AMSC, PE, and PPE. Students from other departments are not eligible to participate.",
+                "error_message": f"Access restricted: Department '{subdomain.upper()}' is not participating in this sports meet.",
+                "reason": "This tournament is exclusively between 3 departments: AMSC, PPE, and PPT. Students from other departments are not eligible to participate.",
             },
             status_code=403,
         )
+
+    dept_code = dept_info["code"]
+    dept_abbr = dept_info["abbr"]
+    dept_email_domain = dept_info["email_domain"]
 
     user_record = {
         "email": email,
         "name": name,
         "picture": picture,
-        "department": dept.lower(),
+        "department": dept_code,
+        "department_abbr": dept_abbr,
+        "department_email_domain": dept_email_domain,
         "role": "athlete",
         "last_login": datetime.utcnow().isoformat(),
     }
@@ -258,7 +315,9 @@ async def auth_callback(
         "email": email,
         "name": name,
         "picture": picture,
-        "department": dept.lower(),
+        "department": dept_code,
+        "department_abbr": dept_abbr,
+        "department_email_domain": dept_email_domain,
         "role": "athlete",
     }
 
