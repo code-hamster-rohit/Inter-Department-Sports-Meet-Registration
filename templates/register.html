@@ -1345,8 +1345,9 @@
             }
           }
 
-          // Check substitutes for carrom_mix (max 1 Boy, max 1 Girl)
-          if (sportId === 'carrom_mix') {
+          // Check substitutes for mixed sports (max 1 Boy, max 1 Girl)
+          if (sportId === 'carrom_mix' || sportId === 'badminton_mix') {
+            const sportLabel = (sportId === 'badminton_mix') ? 'Badminton (mix)' : 'Carrom (mix)';
             let subBoys = 0;
             let subGirls = 0;
             for (let j = 1; j <= 2; j++) {
@@ -1359,12 +1360,12 @@
             }
             if (subBoys > 1) {
               e.preventDefault();
-              alert(`⚠️ Carrom (mix) Substitute Rule: At most 1 Boy substitute can be added (found: ${subBoys} Boys).`);
+              alert(`⚠️ ${sportLabel} Substitute Rule: At most 1 Boy substitute can be added (found: ${subBoys} Boys).`);
               return false;
             }
             if (subGirls > 1) {
               e.preventDefault();
-              alert(`⚠️ Carrom (mix) Substitute Rule: At most 1 Girl substitute can be added (found: ${subGirls} Girls).`);
+              alert(`⚠️ ${sportLabel} Substitute Rule: At most 1 Girl substitute can be added (found: ${subGirls} Girls).`);
               return false;
             }
           }
